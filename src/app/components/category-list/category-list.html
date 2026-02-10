@@ -1,0 +1,99 @@
+<div class="mb-6">
+
+  <!-- Back button if not top-level -->
+  <button
+    *ngIf="parentsStack.length > 0"
+    (click)="goBack()"
+    class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-blue-700 
+           transition-colors duration-200 mb-4 px-3 py-2 rounded-lg hover:bg-gray-50 
+           w-full text-left group">
+    <svg class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform duration-200" 
+         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+    </svg>
+    <span class="font-medium">Back to {{ parentsStack[parentsStack.length - 1]?.name || 'Previous' }}</span>
+  </button>
+
+  <!-- Current level heading -->
+  <div class="px-3 mb-3">
+    <h3 class="font-bold text-gray-800 text-lg flex items-center gap-2">
+      <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+      </svg>
+      {{ parentsStack.length > 0 ? 'Subcategories' : 'All Categories' }}
+    </h3>
+    <p class="text-xs text-gray-500 mt-1">
+      {{ currentLevel.length }} {{ currentLevel.length === 1 ? 'category' : 'categories' }} available
+    </p>
+  </div>
+
+  <!-- Current level categories -->
+  <ul class="space-y-1">
+    <li
+      *ngFor="let cat of currentLevel; let i = index"
+      (click)="selectCategory(cat)"
+      class="cursor-pointer px-3 py-3 rounded-lg hover:bg-blue-50 transition-all duration-200 
+             group border border-transparent hover:border-blue-100 flex items-center
+             hover:shadow-sm active:scale-[0.99]">
+      
+      <!-- Optional: Category icon or color indicator -->
+      <div class="flex items-center justify-center w-8 h-8 rounded-md bg-gradient-to-br 
+                  from-blue-100 to-blue-50 text-blue-600 mr-3 group-hover:from-blue-200 
+                  group-hover:to-blue-100 transition-colors duration-200">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M19 9l-7 7-7-7"/>
+        </svg>
+      </div>
+      
+      <div class="flex-1 min-w-0">
+        <span class="font-medium text-gray-800 group-hover:text-blue-700 transition-colors duration-200 
+                     truncate block">{{ cat.name }}</span>
+        <span *ngIf="cat.children?.length" class="text-xs text-gray-500 mt-0.5 block">
+          {{ cat.children.length }} {{ cat.children.length === 1 ? 'subcategory' : 'subcategories' }}
+        </span>
+        <span *ngIf="!cat.children?.length && cat.itemCount" 
+              class="text-xs text-gray-500 mt-0.5 block">
+          {{ cat.itemCount }} {{ cat.itemCount === 1 ? 'item' : 'items' }}
+        </span>
+      </div>
+      
+      <span *ngIf="cat.children?.length" 
+            class="text-gray-400 group-hover:text-blue-500 transition-colors duration-200 ml-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </span>
+    </li>
+  </ul>
+
+  <!-- Empty state -->
+  <div *ngIf="currentLevel.length === 0" 
+       class="text-center py-8 px-4 text-gray-500">
+    <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    <p class="font-medium text-gray-600">No categories found</p>
+    <p class="text-sm mt-1">Try selecting a different category</p>
+  </div>
+
+  <!-- Breadcrumb trail for deep navigation -->
+  <div *ngIf="parentsStack.length > 0" class="mt-4 pt-4 border-t border-gray-100">
+    <p class="text-xs text-gray-500 mb-2 px-3">Navigation path:</p>
+    <div class="flex flex-wrap gap-1 px-3">
+      <span class="text-xs text-gray-400">All Categories</span>
+      <span *ngFor="let parent of parentsStack; let last = last" 
+            class="flex items-center">
+        <svg class="w-3 h-3 text-gray-300 mx-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+        <span class="text-xs {{ last ? 'text-blue-600 font-medium' : 'text-gray-500' }}">
+          {{ parent.name }}
+        </span>
+      </span>
+    </div>
+  </div>
+
+</div>

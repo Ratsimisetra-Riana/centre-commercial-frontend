@@ -1,0 +1,19 @@
+<div class="space-y-8">
+
+  <!-- Header with subtle background -->
+  <div class="bg-gradient-to-r from-gray-50 to-white p-2 rounded-xl">
+    <h1 class="text-3xl font-bold text-gray-900 mb-3">Browse Products</h1>
+    <p class="text-gray-600">
+      Discover our collection of {{ products?.length || 0 }} quality items
+    </p>
+  </div>
+
+  <!-- Product grid -->
+  <div class="px-1">
+    <app-product-grid
+      [products]="products"
+      [activeFilters]="activeFilters">
+    </app-product-grid>
+  </div>
+
+</div>
