@@ -15,6 +15,7 @@ import { ShopDashboardComponent } from './components/shop-admin/dashboard.compon
 import { ShopProfileComponent } from './components/shop-admin/profile.component';
 import { ShopAddProductComponent } from './components/shop-admin/add-product.component';
 import { ShopProductListComponent } from './components/shop-admin/product-list.component';
+import { ShopProductEditComponent } from './components/shop-admin/product-edit.component';
 import { ShopSoldProductsComponent } from './components/shop-admin/sold-products.component';
 import { ShopAdminLayout } from './components/layout/shop-admin-layout/shop-admin-layout';
 import { CentreAdminLayout } from './components/layout/centre-admin-layout/centre-admin-layout';
@@ -22,6 +23,10 @@ import { CentreCategoryListComponent } from './components/centre-admin/category-
 import { CentreCategoryEditComponent } from './components/centre-admin/category-edit.component';
 import { CentreBoxListComponent } from './components/centre-admin/box-list.component';
 import { CentreBoxEditComponent } from './components/centre-admin/box-edit.component';
+import { CentreShopListComponent } from './components/centre-admin/shop-list.component';
+import { CentreShopEditComponent } from './components/centre-admin/shop-edit.component';
+import { CentreUserListComponent } from './components/centre-admin/user-list.component';
+import { CentreUserEditComponent } from './components/centre-admin/user-edit.component';
 
 export const routes: Routes = [
 { path: 'articles', component: ArticleListComponent }, // Route pourarticle-list
@@ -54,6 +59,7 @@ export const routes: Routes = [
       { path: 'profile', component: ShopProfileComponent },
       { path: 'add-product', component: ShopAddProductComponent },
       { path: 'products', component: ShopProductListComponent },
+      { path: 'products/:id', component: ShopProductEditComponent },
       { path: 'sold', component: ShopSoldProductsComponent }
     ]
   }
@@ -66,7 +72,11 @@ export const routes: Routes = [
       { path: 'categories', component: CentreCategoryListComponent },
       { path: 'categories/:id', component: CentreCategoryEditComponent },
       { path: 'boxes', component: CentreBoxListComponent },
-      { path: 'boxes/:id', component: CentreBoxEditComponent }
+      { path: 'boxes/:id', component: CentreBoxEditComponent },
+      { path: 'shops', component: CentreShopListComponent },
+      { path: 'shops/:id', component: CentreShopEditComponent },
+      { path: 'users', component: CentreUserListComponent },
+      { path: 'users/:id', component: CentreUserEditComponent }
     ]
   }
 ];

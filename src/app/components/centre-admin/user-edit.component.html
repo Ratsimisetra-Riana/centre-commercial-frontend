@@ -1,0 +1,96 @@
+<div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
+  
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-5">
+    <h2 class="text-xl font-bold text-white">
+      {{ id && id !== 'new' ? 'Éditer' : 'Nouvel' }} utilisateur
+    </h2>
+  </div>
+
+  <!-- Form content -->
+  <div class="p-6 space-y-6">
+    
+    <!-- Basic Information -->
+    <div class="bg-gray-50 rounded-xl p-5 space-y-4">
+      <h3 class="font-semibold text-gray-800">Informations personnelles</h3>
+      
+      <!-- Name -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
+        <input [(ngModel)]="model.name" name="name" 
+               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+               placeholder="Ex: Jean Dupont" />
+      </div>
+
+      <!-- Email -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+        <input [(ngModel)]="model.email" name="email" type="email"
+               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+               placeholder="example@email.com" />
+      </div>
+
+      <!-- Password -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          Mot de passe {{ id && id !== 'new' ? '(laisser vide pour ne pas changer)' : '*' }}
+        </label>
+        <input [(ngModel)]="model.password" name="password" type="password"
+               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+               [placeholder]="id && id !== 'new' ? 'Laisser vide pour ne pas changer' : 'Ex: SecurePassword123'" />
+      </div>
+    </div>
+
+    <!-- Role and Shop -->
+    <div class="bg-gray-50 rounded-xl p-5 space-y-4">
+      <h3 class="font-semibold text-gray-800">Rôle et assignation</h3>
+      
+      <!-- Role -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Rôle *</label>
+        <select [(ngModel)]="model.role" name="role"
+                class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+          <option *ngFor="let r of roles" [value]="r.value">
+            {{ r.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Shop Selection (only for shop-admin) -->
+      <div *ngIf="model.role === 'shop_admin'">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Boutique assignée</label>
+        <select [(ngModel)]="model.shopId" name="shopId"
+                class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+          <option [ngValue]="null">— Aucune —</option>
+          <option *ngFor="let shop of shops" [ngValue]="shop._id">
+            {{ shop.name }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Status -->
+    <div class="bg-gray-50 rounded-xl p-5 space-y-4">
+      <h3 class="font-semibold text-gray-800">Statut</h3>
+      
+      <label class="flex items-center gap-3 cursor-pointer">
+        <input [(ngModel)]="model.isActive" name="isActive" type="checkbox" 
+               class="w-5 h-5 border-gray-300 rounded focus:ring-2 focus:ring-indigo-500" />
+        <span class="text-sm text-gray-700">Compte actif</span>
+      </label>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+      <button (click)="cancel()" 
+              class="border border-gray-300 text-gray-700 font-semibold py-3 px-8 rounded-xl hover:bg-gray-50 transition-all duration-200">
+        Annuler
+      </button>
+      <button (click)="save()" 
+              class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold py-3 px-8 rounded-xl hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-md">
+        Enregistrer
+      </button>
+    </div>
+
+  </div>
+</div>

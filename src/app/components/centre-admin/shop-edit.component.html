@@ -1,0 +1,110 @@
+<div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
+  
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-5">
+    <h2 class="text-xl font-bold text-white">
+      {{ id && id !== 'new' ? 'Éditer' : 'Nouvelle' }} boutique
+    </h2>
+  </div>
+
+  <!-- Form content -->
+  <div class="p-6 space-y-6">
+    
+    <!-- Basic Information -->
+    <div class="bg-gray-50 rounded-xl p-5 space-y-4">
+      <h3 class="font-semibold text-gray-800">Informations de base</h3>
+      
+      <!-- Name -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
+        <input [(ngModel)]="model.name" name="name" 
+               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+               placeholder="Ex: Boutique XYZ" />
+      </div>
+
+      <!-- Box Selection -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Localisation (Boîte)</label>
+        <select [(ngModel)]="model.box" [compareWith]="compareBoxes" name="box"
+                class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+          <option [ngValue]="null">— Aucune —</option>
+          <option *ngFor="let box of boxes" [ngValue]="box">
+            {{ box.code }} (Étage {{ box.floor }}, Zone {{ box.zone }})
+          </option>
+        </select>
+      </div>
+
+      <!-- Rent -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Loyer (FMG) *</label>
+        <input [(ngModel)]="model.rent" name="rent" type="number" 
+               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+               placeholder="Ex: 50000" />
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+        <textarea [(ngModel)]="model.description" name="description" rows="3"
+                  class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  placeholder="Description de la boutique..."></textarea>
+      </div>
+    </div>
+
+    <!-- Contact Information -->
+    <div class="bg-gray-50 rounded-xl p-5 space-y-4">
+      <h3 class="font-semibold text-gray-800">Informations de contact</h3>
+      
+      <!-- Email -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <input [(ngModel)]="model.contact!.email" name="email" type="email"
+               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+               placeholder="contact@example.com" />
+      </div>
+
+      <!-- Phone -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+        <input [(ngModel)]="model.contact!.phone" name="phone" type="tel"
+               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+               placeholder="+261 34 XX XX XX" />
+      </div>
+    </div>
+
+    <!-- Images -->
+    <div class="bg-gray-50 rounded-xl p-5 space-y-4">
+      <h3 class="font-semibold text-gray-800">Images</h3>
+      
+      <div class="space-y-2">
+        <div *ngFor="let img of model.images ?? []; let i = index; trackBy: trackByIndex" class="flex items-center gap-2">
+          <input [(ngModel)]="model.images![i]" name="image{{i}}"
+                 class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                 placeholder="URL de l'image" />
+          <button (click)="removeImage(i)" type="button"
+                  class="text-sm text-red-600 hover:text-red-800 px-3 py-1.5 rounded-lg">
+            ×
+          </button>
+        </div>
+
+        <button (click)="addImage()" type="button"
+                class="mt-2 inline-flex items-center px-3 py-1.5 border border-dashed rounded-lg text-gray-600 hover:text-purple-600">
+          + Ajouter image
+        </button>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+      <button (click)="cancel()" 
+              class="border border-gray-300 text-gray-700 font-semibold py-3 px-8 rounded-xl hover:bg-gray-50 transition-all duration-200">
+        Annuler
+      </button>
+      <button (click)="save()" 
+              class="bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold py-3 px-8 rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all duration-200 shadow-md">
+        Enregistrer
+      </button>
+    </div>
+
+  </div>
+</div>
