@@ -57,14 +57,14 @@
           <label class="block text-sm font-medium text-gray-700 mb-1">Étage</label>
           <select [(ngModel)]="selectedFloor" (ngModelChange)="onFloorChange()"
                   class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-            <option [ngValue]="null">Tous les étages</option>
+            <option [ngValue]="null">Toutes les étages</option>
             <option *ngFor="let floor of availableFloors" [ngValue]="floor">
               {{ getFloorLabel(floor) }}
             </option>
           </select>
         </div>
 
-        <!-- Min rent -->
+        <!-- Min rent
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Loyer min (€)</label>
           <input type="number" 
@@ -74,7 +74,7 @@
                  class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
         </div>
 
-        <!-- Max rent -->
+        <!-- Max rent 
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Loyer max (€)</label>
           <input type="number" 
@@ -83,7 +83,7 @@
                  placeholder="Max"
                  class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
         </div>
-      </div>
+      </div>-->
 
       <!-- Clear filters -->
       <div class="flex justify-end mt-4">

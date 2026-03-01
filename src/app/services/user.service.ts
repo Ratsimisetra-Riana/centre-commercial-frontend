@@ -20,7 +20,8 @@ export class UserService {
   }
 
   create(user: User): Observable<User> {
-    try { return this.http.post<User>(this.api, user); } catch {
+    console.log("Creating user:", user);
+    try { return this.http.post<User>(this.api+"/admin/create-user", user); } catch {
       const created = { ...user, _id: 'user_' + Date.now() } as User;
       const s = this.localList(); s.push(created); localStorage.setItem('cc_users', JSON.stringify(s));
       return of(created);

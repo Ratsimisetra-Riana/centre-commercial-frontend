@@ -74,7 +74,7 @@
           Product Details
         </h3>
         <p class="text-gray-600">
-          {{ product.description || 'Premium quality product designed for comfort and durability.' }}
+          {{ product.description || 'Produit de qualité supérieure conçu pour le confort et la durabilité.' }}
         </p>
       </div>
 
@@ -102,7 +102,7 @@
         </div>
       </div> -->
       <div class="space-y-6">
-        <h3 class="font-semibold text-gray-800 text-lg">Select Options</h3>
+        <h3 class="font-semibold text-gray-800 text-lg">Choisir les options</h3>
 
         <div *ngFor="let group of attributeGroups" class="space-y-2">
           <div class="text-sm font-medium text-gray-600 capitalize">
@@ -138,7 +138,7 @@
         <!-- No matching combination -->
         <ng-template #noVariant>
           <div class="text-sm text-gray-500">
-            Select options to see availability and price
+            Sélectionnez des options pour voir la disponibilité et le prix
           </div>
         </ng-template>
 
@@ -174,9 +174,7 @@
             </button>
             <input 
               type="number" 
-              [value]="quantity"
-              (change)="onQuantityChange($event)"
-              (input)="onQuantityChange($event)"
+              [(ngModel)]="quantity"
               [min]="1"
               [max]="maxQuantity"
               class="w-16 text-center py-2 border-x focus:outline-none focus:ring-2 focus:ring-blue-500" />

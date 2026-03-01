@@ -29,6 +29,7 @@ import { CentreShopListComponent } from './components/centre-admin/shop-list.com
 import { CentreShopEditComponent } from './components/centre-admin/shop-edit.component';
 import { CentreUserListComponent } from './components/centre-admin/user-list.component';
 import { CentreUserEditComponent } from './components/centre-admin/user-edit.component';
+import { CentreDashboardComponent } from './components/centre-admin/centre-dashboard.component';
 import { shopAdminGuard } from './services/shop-admin.guard';
 import { centreAdminGuard } from './services/centre-admin.guard';
 
@@ -77,7 +78,8 @@ export const routes: Routes = [
       component: CentreAdminLayout,
       canActivate: [centreAdminGuard],
       children: [
-        { path: '', redirectTo: 'categories', pathMatch: 'full' },
+        { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+        { path: 'dashboard', component: CentreDashboardComponent },
         { path: 'categories', component: CentreCategoryListComponent },
         { path: 'categories/:id', component: CentreCategoryEditComponent },
         { path: 'boxes', component: CentreBoxListComponent },

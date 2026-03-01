@@ -19,6 +19,7 @@ export class ProductPage implements OnInit {
   activeFilters: Record<string, any> = {};  
   selectedCategory: Category | null = null;
   categories: Category[] = [];
+  sidebarOpen = false;
 
   constructor(
     private filterService: FilterService, 
@@ -93,5 +94,9 @@ export class ProductPage implements OnInit {
   hasVariantFilters(): boolean {
     // Check if there are any filters besides categoryId
     return Object.keys(this.activeFilters).some(key => key !== 'categoryId' && this.activeFilters[key]);
+  }
+
+  toggleSidebar() {
+    this.sidebarOpen = !this.sidebarOpen;
   }
 }

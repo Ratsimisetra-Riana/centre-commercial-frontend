@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { AuthService } from './auth.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 export interface ShopProfile {
   id: string;
@@ -15,7 +17,7 @@ export class ShopAdminService {
   private shopSubject: BehaviorSubject<ShopProfile | null>;
   shop$: Observable<ShopProfile | null>;
 
-  constructor(private auth: AuthService) {
+  constructor(private auth: AuthService, private http: HttpClient) {
     // Initialize in constructor after auth is injected
     const initialValue = this.load();
     this.shopSubject = new BehaviorSubject<ShopProfile | null>(initialValue);
@@ -87,5 +89,9 @@ export class ShopAdminService {
     localStorage.setItem(this.shopKey, JSON.stringify(updated));
     this.shopSubject.next(updated);
     return of(updated);
+  }
+
+  getDashboard(shopId: string): Observable<any> {
+    return this.http.get(`${environment.apiUrl}/shops/${shopId}/dashboard`);
   }
 }
