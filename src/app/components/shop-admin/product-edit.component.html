@@ -1,0 +1,254 @@
+<div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+  
+  <!-- Header with gradient -->
+  <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-5">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold text-white">
+        {{ id && id !== 'new' ? 'Modifier' : 'Ajouter' }} un produit
+      </h2>
+    </div>
+  </div>
+
+  <!-- Form content -->
+  <div class="p-6 space-y-6">
+
+    <!-- Basic Information Section -->
+    <div class="bg-gray-50 rounded-xl p-5 space-y-4">
+      <h3 class="font-semibold text-gray-800 flex items-center gap-2">
+        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Informations de base
+      </h3>
+
+      <!-- Product Name -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Nom du produit</label>
+        <input [(ngModel)]="model.name" name="name" 
+               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+               placeholder="Ex: T-shirt en coton" />
+      </div>
+
+      <!-- Category -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
+        <select [(ngModel)]="model.categoryId" name="categoryId" 
+                [compareWith]="compareCategories"
+                class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 appearance-none bg-white">
+          <option [ngValue]="null" class="text-gray-500">— Sélectionner une catégorie —</option>
+          <option *ngFor="let cat of categories" [ngValue]="cat" class="text-gray-900">{{ cat.name }}</option>
+        </select>
+      </div>
+
+      <!-- Base Price -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Prix de base</label>
+        <div class="relative">
+          <span class="absolute left-3 top-3 text-gray-500">€</span>
+          <input type="number" [(ngModel)]="model.basePrice" name="basePrice" 
+                 class="w-full border border-gray-300 rounded-lg pl-8 pr-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                 placeholder="0.00" />
+        </div>
+      </div>
+
+      <!-- Images - File Upload -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Images du produit</label>
+        
+        <!-- File input -->
+        <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors">
+          <input type="file" 
+                 (change)="onFileSelected($event)" 
+                 accept="image/*" 
+                 multiple
+                 class="hidden" 
+                 id="image-upload"
+                 #fileInput>
+          <label for="image-upload" class="cursor-pointer">
+            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+              <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <p class="mt-1 text-sm text-gray-600">
+              <span class="font-medium text-blue-600">Cliquez pour télécharger</span> ou glissez-déposez
+            </p>
+            <p class="mt-1 text-xs text-gray-500">PNG, JPG, WEBP jusqu'à 5MB</p>
+          </label>
+        </div>
+
+        <!-- New selected images preview -->
+        <div *ngIf="selectedFiles.length > 0" class="mt-4">
+          <p class="text-sm font-medium text-gray-700 mb-2">{{ selectedFiles.length }} nouvelle(s) image(s) sélectionnée(s)</p>
+          <div class="flex flex-wrap gap-2">
+            <div *ngFor="let file of selectedFiles; let i = index" class="relative group">
+              <img [src]="imagePreviews[i]" class="w-20 h-20 object-cover rounded-lg border border-gray-200">
+              <button type="button" (click)="removeImage(i)" 
+                      class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600">
+                ×
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Existing images -->
+        <div *ngIf="existingImages.length > 0" class="mt-4">
+          <p class="text-sm font-medium text-gray-700 mb-2">Images existantes ({{ existingImages.length }})</p>
+          <div class="flex flex-wrap gap-2">
+            <div *ngFor="let img of existingImages; let i = index" class="relative group">
+              <img [src]="img" class="w-20 h-20 object-cover rounded-lg border border-gray-200">
+              <button type="button" (click)="removeExistingImage(i)" 
+                      class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600">
+                ×
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Variants Section -->
+    <div class="bg-gray-50 rounded-xl p-5 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-semibold text-gray-800 flex items-center gap-2">
+          <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+          </svg>
+          Variantes
+        </h3>
+        <span class="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded-full">
+          {{ model.variants?.length || 0 }} variante{{ (model.variants?.length || 0) !== 1 ? 's' : '' }}
+        </span>
+      </div>
+
+      <!-- Variants List -->
+      <div class="space-y-4">
+        <div *ngFor="let v of model.variants; let i = index" 
+             class="bg-white border border-gray-200 rounded-xl p-4 space-y-4 relative">
+          
+          <!-- Variant Header -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-xs text-blue-600 font-bold">
+                {{ i + 1 }}
+              </span>
+              <span class="font-medium text-gray-700">Variante {{ i + 1 }}</span>
+            </div>
+            <button type="button" (click)="removeVariant(i)" 
+                    class="text-sm bg-red-50 text-red-700 px-3 py-1.5 rounded-lg hover:bg-red-100 transition-colors duration-200 flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+              Supprimer
+            </button>
+          </div>
+
+          <!-- Variant Fields -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1">SKU</label>
+              <input [(ngModel)]="v.sku" name="sku{{i}}" 
+                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                     placeholder="REF001" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1">Stock</label>
+              <input type="number" [(ngModel)]="v.stock" name="stock{{i}}" 
+                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                     placeholder="10" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 uppercase tracking-wide mb-1">Prix</label>
+              <div class="relative">
+                <span class="absolute left-3 top-2 text-gray-500">€</span>
+                <input type="number" [(ngModel)]="v.price" name="price{{i}}" 
+                       class="w-full border border-gray-300 rounded-lg pl-8 pr-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                       placeholder="29.99" />
+              </div>
+            </div>
+          </div>
+          
+          <!-- Attributes based on category filters -->
+          <div *ngIf="model.categoryId?.filters && (model.categoryId?.filters?.length ?? 0) > 0" class="mt-4 pt-4 border-t border-gray-100">
+            <p class="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+              <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+              </svg>
+              Attributs
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div *ngFor="let filter of model.categoryId?.filters" class="space-y-1">
+                <label class="block text-xs font-medium text-gray-600">{{ filter.key }}</label>
+                
+                <!-- Select type -->
+                <select *ngIf="filter.type === 'select'" 
+                        [(ngModel)]="v.attributes[filter.key]" 
+                        [name]="'attr_' + i + '_' + filter.key"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                  <option value="" class="text-gray-500">— Sélectionner —</option>
+                  <option *ngFor="let opt of filter.options" [value]="opt" class="text-gray-900">{{ opt }}</option>
+                </select>
+
+                <!-- Checkbox type -->
+                <div *ngIf="filter.type === 'checkbox'" class="space-y-2">
+                  <label *ngFor="let opt of filter.options" 
+                         class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-200 cursor-pointer">
+                    <input type="checkbox" 
+                           [value]="opt" 
+                           (change)="$event.target.checked ? v.attributes[filter.key] = opt : null" 
+                           class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                    <span class="text-sm text-gray-700">{{ opt }}</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Variant Button -->
+        <button type="button" (click)="addVariant()" [disabled]="!model.categoryId"
+                class="w-full py-4 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:text-gray-500 disabled:hover:bg-transparent">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+          Ajouter une variante
+        </button>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex justify-between gap-3 pt-4 border-t border-gray-200">
+      <div>
+        <button *ngIf="id && id !== 'new'" (click)="delete()" 
+                class="bg-red-600 text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-red-700 transition-colors duration-200 shadow-md hover:shadow-lg flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+          Supprimer
+        </button>
+      </div>
+      <div class="flex gap-3">
+        <a href="/shop-admin/products" 
+           class="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 font-medium">
+          Annuler
+        </a>
+        <button (click)="save()" 
+                [disabled]="uploading"
+                class="bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-2.5 px-8 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2 disabled:opacity-50">
+          <svg *ngIf="uploading" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          {{ id && id !== 'new' ? (uploading ? 'Enregistrement...' : 'Modifier') : (uploading ? 'Ajout...' : 'Ajouter') }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

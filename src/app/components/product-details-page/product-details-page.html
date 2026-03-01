@@ -74,7 +74,7 @@
           Product Details
         </h3>
         <p class="text-gray-600">
-          {{ product.description || 'Premium quality product designed for comfort and durability.' }}
+          {{ product.description || 'Produit de qualité supérieure conçu pour le confort et la durabilité.' }}
         </p>
       </div>
 
@@ -102,7 +102,7 @@
         </div>
       </div> -->
       <div class="space-y-6">
-        <h3 class="font-semibold text-gray-800 text-lg">Select Options</h3>
+        <h3 class="font-semibold text-gray-800 text-lg">Choisir les options</h3>
 
         <div *ngFor="let group of attributeGroups" class="space-y-2">
           <div class="text-sm font-medium text-gray-600 capitalize">
@@ -127,7 +127,7 @@
       <div class="mt-6 p-4 border rounded-lg bg-gray-50">
 
         <!-- Valid variant selected -->
-        <ng-container *ngIf="selectedVariants.length; else noVariant">
+        <ng-container *ngIf="selectedVariants && selectedVariants.length; else noVariant">
           <div *ngFor="let variant of selectedVariants" class="space-y-2">
             <div>SKU: {{ variant.sku }}</div>
             <div>Stock: {{ variant.stock }}</div>
@@ -138,7 +138,7 @@
         <!-- No matching combination -->
         <ng-template #noVariant>
           <div class="text-sm text-gray-500">
-            Select options to see availability and price
+            Sélectionnez des options pour voir la disponibilité et le prix
           </div>
         </ng-template>
 
@@ -160,6 +160,36 @@
           {{ selectedVariant.price ?? product.basePrice | currency }}
       </div>-->
 
+
+      <!-- Quantity Selector -->
+      <div class="mt-6">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Quantité</label>
+        <div class="flex items-center gap-3">
+          <div class="flex items-center border rounded-lg overflow-hidden">
+            <button 
+              (click)="decreaseQuantity()" 
+              [disabled]="quantity <= 1"
+              class="px-4 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+              -
+            </button>
+            <input 
+              type="number" 
+              [(ngModel)]="quantity"
+              [min]="1"
+              [max]="maxQuantity"
+              class="w-16 text-center py-2 border-x focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <button 
+              (click)="increaseQuantity()" 
+              [disabled]="quantity >= maxQuantity"
+              class="px-4 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+              +
+            </button>
+          </div>
+          <span class="text-sm text-gray-500">
+            ({{ maxQuantity }} disponibles)
+          </span>
+        </div>
+      </div>
 
       <!-- ADD TO CART - More prominent -->
       <div class="space-y-4 pt-4">

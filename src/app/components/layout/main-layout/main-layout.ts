@@ -22,6 +22,7 @@ export class MainLayout {
   sidebarOpen = false;
 
   toggleSidebar() {
+    console.log('Toggling sidebar. Current state:', this.sidebarOpen);
     this.sidebarOpen = !this.sidebarOpen;
   }
 }

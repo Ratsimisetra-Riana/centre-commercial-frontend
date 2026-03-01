@@ -19,7 +19,7 @@ export class ProductService {
     shopId: 'shopA',
     categoryId: 'sweat',
     name: 'Women Sweatshirt',
-    price: 45,
+    basePrice: 45,
     images: [
       "products/sweatshirt-woman.jpg",
       "/assets/products/sweat-2.jpg"
@@ -27,66 +27,25 @@ export class ProductService {
     variants: [
       {
         sku: 'SWT-M-F',
-        size: 'M',
-        gender: 'female',
+        attributes: { size: 'M', gender: 'female' },
         stock: 6
       }
     ]
   },
   {
-    _id: 'prod_1001',
+    _id: 'prod_1003',
     shopId: 'shopA',
     categoryId: 'sweat',
-    name: 'Women Sweatshirt',
-    price: 45,
+    name: 'Men Sweatshirt',
+    basePrice: 50,
     images: [
-      "products/sweatshirt-woman.jpg",
-      "/assets/products/sweat-2.jpg"
+      "products/sweatshirt-men.jpg"
     ],
     variants: [
       {
-        sku: 'SWT-M-F',
-        size: 'M',
-        gender: 'female',
-        stock: 6
-      }
-    ]
-  },
-  {
-    _id: 'prod_1001',
-    shopId: 'shopA',
-    categoryId: 'sweat',
-    name: 'Women Sweatshirt',
-    price: 45,
-    images: [
-      "products/sweatshirt-woman.jpg",
-      "/assets/products/sweat-2.jpg"
-    ],
-    variants: [
-      {
-        sku: 'SWT-M-F',
-        size: 'M',
-        gender: 'female',
-        stock: 6
-      }
-    ]
-  },
-  {
-    _id: 'prod_1001',
-    shopId: 'shopA',
-    categoryId: 'sweat',
-    name: 'Women Sweatshirt',
-    price: 45,
-    images: [
-      "products/sweatshirt-woman.jpg",
-      "/assets/products/sweat-2.jpg"
-    ],
-    variants: [
-      {
-        sku: 'SWT-M-F',
-        size: 'M',
-        gender: 'female',
-        stock: 6
+        sku: 'SWT-M-M',
+        attributes: { size: 'M', gender: 'male' },
+        stock: 4
       }
     ]
   },
@@ -95,14 +54,14 @@ export class ProductService {
     shopId: 'shopA',
     categoryId: 'sweat',
     name: 'Unisex Hoodie',
-    price: 55,
+    basePrice: 55,
     images: [
       "products/hoodie-unisex.webp",
       "/assets/products/sweat-2.jpg"
-    ],
+    ],      
     variants: [
-      { sku: 'HD-S-U', size: 'S', gender: 'unisex', stock: 3 },
-      { sku: 'HD-M-U', size: 'M', gender: 'unisex', stock: 0 }
+      { sku: 'HD-S-U', attributes: { size: 'S', gender: 'unisex' }, stock: 3 },
+      { sku: 'HD-M-U', attributes: { size: 'M', gender: 'unisex' }, stock: 0 }
     ]
   }
 ];
@@ -113,7 +72,7 @@ export class ProductService {
   }
 
   getProductsById(id): Observable<any> {
-    console.log(this.http.get(this.apiUrl + "/" + id));
+    console.log(this.apiUrl + "/" + id);
     return this.http.get(this.apiUrl + "/" + id);
   }
 
@@ -121,6 +80,7 @@ export class ProductService {
   getProductsByShop(shopId: string): Observable<any> {
     // prefer backend if available
     try {
+      console.log(this.apiUrl + '?shopId=' + shopId);
       return this.http.get(this.apiUrl + '?shopId=' + shopId).pipe(
         map((res: any) => res)
       );
@@ -134,6 +94,7 @@ export class ProductService {
     // if backend exists, post
     if (this.http) {
       try {
+        console.log(product);
         return this.http.post(this.apiUrl, product);
       } catch {
         // fallthrough
@@ -143,6 +104,80 @@ export class ProductService {
     const created = { ...product, _id: 'prod_' + Date.now() };
     this.products.push(created);
     return of(created);
+  }
+
+  // Update product
+  updateProduct(id: string, product: any): Observable<any> {
+    try {
+      console.log(`Updating product ${id} with data:`, product);
+      return this.http.put(`${this.apiUrl}/${id}`, product);
+    } catch {
+      // fallback: update local mock list
+      const index = this.products.findIndex(p => p._id === id);
+      if (index !== -1) {
+        this.products[index] = { ...product, _id: id };
+      }
+      return of({ ...product, _id: id });
+    }
+  }
+
+  // Delete product
+  deleteProduct(id: string): Observable<any> {
+    try {
+      return this.http.delete(`${this.apiUrl}/${id}`);
+    } catch {
+      // fallback: remove from local mock list
+      this.products = this.products.filter(p => p._id !== id);
+      return of({ success: true });
+    }
+  }
+
+  // Filter products by category and variant attributes
+  filterProducts(filters: { categoryId?: string; shopId?: string; [key: string]: any }): Observable<any> {
+    // Build query string from filters
+    const params = new URLSearchParams();
+    if (filters.categoryId) {
+      params.set('categoryId', filters.categoryId);
+    }
+    if (filters.shopId) {
+      params.set('shopId', filters.shopId);
+    }
+    // Add variant attribute filters
+    Object.entries(filters).forEach(([key, value]) => {
+      if (key !== 'categoryId' && key !== 'shopId' && value !== undefined && value !== null && value !== '') {
+        if (Array.isArray(value)) {
+          // For array values, add each option as a separate param
+          value.forEach(v => params.set(key, v));
+        } else {
+          params.set(key, value);
+        }
+      }
+    });
+
+    const queryString = params.toString();
+    const url = queryString ? `${this.apiUrl}/filter?${queryString}` : `${this.apiUrl}/filter`;
+    
+    try {
+      console.log('Filtering products with URL:', url);
+      return this.http.get(url);
+    } catch {
+      // Fallback to local filtering
+      return of(this.products.filter(p => {
+        if (filters.categoryId && p.categoryId !== filters.categoryId) return false;
+        if (filters.shopId && p.shopId !== filters.shopId) return false;
+        
+        // Check variant attributes
+        const variantAttrs = p.variants?.map((v: any) => v.attributes ? Object.fromEntries(v.attributes) : {});
+        if (!variantAttrs) return true;
+        
+        return variantAttrs.some((attrs: any) => {
+          return Object.entries(filters).every(([key, value]) => {
+            if (key === 'categoryId' || key === 'shopId' || !value) return true;
+            return attrs[key] === value;
+          });
+        });
+      }));
+    }
   }
 
 }

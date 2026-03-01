@@ -1,32 +1,167 @@
-<div class="max-w-2xl mx-auto bg-white p-6 rounded shadow">
-  <h2 class="text-xl mb-4">Ajouter un produit</h2>
-
-  <label class="block mb-2">Nom
-    <input [(ngModel)]="model.name" name="name" class="w-full border px-2 py-1" />
-  </label>
-
-  <label class="block mb-2">Categorie
-    <input [(ngModel)]="model.categoryId" name="categoryId" class="w-full border px-2 py-1" />
-  </label>
-
-  <label class="block mb-2">Prix
-    <input type="number" [(ngModel)]="model.price" name="price" class="w-full border px-2 py-1" />
-  </label>
-
-  <label class="block mb-2">Frais de livraison
-    <input type="number" [(ngModel)]="model.shippingFee" name="shippingFee" class="w-full border px-2 py-1" />
-  </label>
-
-  <div class="mb-4">
-    <h4 class="font-semibold">Variantes</h4>
-    <div *ngFor="let v of model.variants; let i = index" class="flex gap-2 items-center mb-2">
-      <input [(ngModel)]="v.sku" name="sku{{i}}" placeholder="SKU" class="border px-2 py-1" />
-      <input type="number" [(ngModel)]="v.stock" name="stock{{i}}" placeholder="Stock" class="border px-2 py-1 w-24" />
-    </div>
-    <button type="button" (click)="addVariant()" class="text-sm text-blue-600">Ajouter variante</button>
+<div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+  
+  <!-- Header with gradient -->
+  <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-5">
+    <h2 class="text-xl font-bold text-white">Ajouter un produit</h2>
   </div>
 
-  <div class="flex justify-end">
-    <button (click)="submit()" class="bg-green-600 text-white px-3 py-1 rounded">Ajouter</button>
+  <!-- Form content -->
+  <div class="p-6 space-y-6">
+
+    <!-- Basic Information -->
+    <div class="bg-gray-50 rounded-xl p-5 space-y-4">
+      <h3 class="font-semibold text-gray-800">Informations de base</h3>
+      
+      <!-- Product Name -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Nom du produit</label>
+        <input [(ngModel)]="model.name" name="name" 
+               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+               placeholder="Ex: T-shirt en coton" />
+      </div>
+
+      <!-- Category -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
+        <select [(ngModel)]="model.categoryId" name="categoryId" 
+                [compareWith]="compareCategories"
+                class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white">
+          <option [ngValue]="null">— Sélectionner une catégorie —</option>
+          <option *ngFor="let cat of categories" [ngValue]="cat">{{ cat.name }}</option>
+        </select>
+      </div>
+
+      <!-- Base Price -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Prix de base</label>
+        <input type="number" [(ngModel)]="model.basePrice" name="basePrice" 
+               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+               placeholder="0.00" />
+      </div>
+
+      <!-- Images - File Upload -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Images du produit</label>
+        
+        <!-- File input -->
+        <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors">
+          <input type="file" 
+                 (change)="onFileSelected($event)" 
+                 accept="image/*" 
+                 multiple
+                 class="hidden" 
+                 id="image-upload"
+                 #fileInput>
+          <label for="image-upload" class="cursor-pointer">
+            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+              <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <p class="mt-1 text-sm text-gray-600">
+              <span class="font-medium text-blue-600">Cliquez pour télécharger</span> ou glissez-déposez
+            </p>
+            <p class="mt-1 text-xs text-gray-500">PNG, JPG, WEBP jusqu'à 5MB</p>
+          </label>
+        </div>
+
+        <!-- Selected images preview -->
+        <div *ngIf="selectedFiles.length > 0" class="mt-4">
+          <p class="text-sm font-medium text-gray-700 mb-2">{{ selectedFiles.length }} image(s) sélectionnée(s)</p>
+          <div class="flex flex-wrap gap-2">
+            <div *ngFor="let file of selectedFiles; let i = index" class="relative group">
+              <img [src]="imagePreviews[i]" class="w-20 h-20 object-cover rounded-lg border border-gray-200">
+              <button type="button" (click)="removeImage(i)" 
+                      class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600">
+                ×
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Existing images (for editing) -->
+        <div *ngIf="existingImages.length > 0" class="mt-4">
+          <p class="text-sm font-medium text-gray-700 mb-2">Images existantes</p>
+          <div class="flex flex-wrap gap-2">
+            <div *ngFor="let img of existingImages; let i = index" class="relative group">
+              <img [src]="img" class="w-20 h-20 object-cover rounded-lg border border-gray-200">
+              <button type="button" (click)="removeExistingImage(i)" 
+                      class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600">
+                ×
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Variants -->
+    <div class="bg-gray-50 rounded-xl p-5 space-y-4">
+      <h3 class="font-semibold text-gray-800">Variantes</h3>
+      
+      <div class="space-y-4">
+        <div *ngFor="let v of model.variants; let i = index" class="bg-white border border-gray-200 rounded-xl p-4 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="font-medium text-gray-700">Variante {{ i + 1 }}</span>
+            <button type="button" (click)="removeVariant(i)" 
+                    class="text-sm text-red-600 px-3 py-1 rounded hover:bg-red-50">
+              Supprimer
+            </button>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">SKU</label>
+              <input [(ngModel)]="v.sku" name="sku{{i}}" class="w-full border border-gray-300 rounded-lg px-4 py-2"
+                     placeholder="REF001" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Stock</label>
+              <input type="number" [(ngModel)]="v.stock" name="stock{{i}}" class="w-full border border-gray-300 rounded-lg px-4 py-2"
+                     placeholder="10" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Prix</label>
+              <input type="number" [(ngModel)]="v.price" name="price{{i}}" class="w-full border border-gray-300 rounded-lg px-4 py-2"
+                     placeholder="29.99" />
+            </div>
+          </div>
+
+          <!-- Attributes -->
+          <div *ngIf="model.categoryId?.filters && (model.categoryId?.filters?.length ?? 0) > 0" class="mt-4 pt-4 border-t">
+            <p class="text-sm font-medium text-gray-700 mb-3">Attributs</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div *ngFor="let filter of model.categoryId?.filters" class="space-y-1">
+                <label class="block text-xs font-medium text-gray-600">{{ filter.key }}</label>
+                <select *ngIf="filter.type === 'select'" 
+                        [(ngModel)]="v.attributes[filter.key]" 
+                        [name]="'attr_' + i + '_' + filter.key"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm">
+                  <option value="">— Sélectionner —</option>
+                  <option *ngFor="let opt of filter.options" [value]="opt">{{ opt }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" (click)="addVariant()" [disabled]="!model.categoryId"
+                class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-500 hover:text-blue-600 disabled:opacity-50">
+          + Ajouter une variante
+        </button>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex justify-end gap-3 pt-4 border-t">
+      <a href="/shop-admin/products" class="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+        Annuler
+      </a>
+      <button (click)="submit()" 
+              [disabled]="uploading"
+              class="bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-2.5 px-8 rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 flex items-center gap-2">
+        <span *ngIf="uploading">Chargement...</span>
+        <span *ngIf="!uploading">Ajouter</span>
+      </button>
+    </div>
+
   </div>
 </div>
