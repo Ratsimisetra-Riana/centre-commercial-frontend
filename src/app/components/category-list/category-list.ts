@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { CategoryService, Category } from '../../services/category.service';
 
 @Component({
   selector: 'app-category-list',
@@ -7,105 +8,73 @@ import { CommonModule } from '@angular/common';
   templateUrl: './category-list.html',
   standalone: true
 })
-export class CategoryList {
-  @Output() categorySelected = new EventEmitter<any>();
+export class CategoryList implements OnInit {
+  @Output() categorySelected = new EventEmitter<Category | null>();
 
- categories: any[] = [
-  {
-    _id: 'electronics',
-    name: 'Electronics',
-    parent: null,
-    filters: [
-      { key: 'brand', type: 'select', options: ['Apple', 'Samsung', 'Sony'] }
-    ],
-    children: [
-      {
-        _id: 'smartphones',
-        name: 'Smartphones',
-        parent: 'electronics',
-        filters: [
-          { key: 'os', type: 'select', options: ['iOS', 'Android'] }
-        ],
-        children: [
-          {
-            _id: 'gaming-phones',
-            name: 'Gaming Phones',
-            parent: 'smartphones',
-            filters: [
-              { key: 'ram', type: 'select', options: ['6GB', '8GB', '12GB'] }
-            ]
-          }
-        ]
-      },
-      {
-        _id: 'laptops',
-        name: 'Laptops',
-        parent: 'electronics',
-        filters: [
-          { key: 'processor', type: 'select', options: ['i5', 'i7', 'i9'] }
-        ]
-      }
-    ]
-  },
-  {
-    _id: 'clothing',
-    name: 'Clothing',
-    parent: null,
-    filters: [
-      { key: 'size', type: 'select', options: ['XS', 'S', 'M', 'L', 'XL'] }
-    ],
-    children: [
-      {
-        _id: 'men',
-        name: 'Men',
-        parent: 'clothing',
-        filters: [
-          { key: 'style', type: 'select', options: ['casual', 'formal'] }
-        ]
-      },
-      {
-        _id: 'women',
-        name: 'Women',
-        parent: 'clothing',
-        filters: [
-          { key: 'style', type: 'select', options: ['casual', 'party'] }
-        ]
-      }
-    ]
-  }
-];
+  categories: Category[] = [];
+  currentLevel: Category[] = [];
+  parentsStack: Category[] = [];
+  selectedCategoryId: string | null = null;
 
-
-  currentLevel: any[] = [];
-  parentsStack: any[] = [];
-
-  
+  constructor(private categoryService: CategoryService) {}
 
   ngOnInit() {
-    // show top-level categories initially
-    this.currentLevel = this.categories.filter(c => c.parent === null);
+    // Load categories from API
+    this.categoryService.hierarchisedList().subscribe(cats => {
+      this.categories = cats || [];
+      // Show top-level categories initially
+      this.currentLevel = this.categories.filter(c => !c.parent || (c.parent && !c.parent._id));
+    });
   }
 
-  selectCategory(category: any) {
-    // emit selected category
+  selectCategory(category: Category) {
+    // Emit the category selection - this filters products immediately
+    this.selectedCategoryId = category._id || null;
     this.categorySelected.emit(category);
 
-    // push to stack if it has children
+    // If category has children, navigate into them
     if (category.children && category.children.length > 0) {
       this.parentsStack.push(category);
       this.currentLevel = category.children;
-    } else {
-      // leaf node selected, no further children
-      this.currentLevel = [];
     }
+    // If no children, it's a leaf category - stay on current level
   }
 
-  // optional: go back to parent level
+  // Go back to parent level
   goBack() {
     this.parentsStack.pop();
     const parent = this.parentsStack[this.parentsStack.length - 1];
     this.currentLevel = parent
       ? parent.children || []
-      : this.categories.filter(c => c.parent === null);
+      : this.categories.filter(c => !c.parent || (c.parent && !c.parent._id));
+    
+    // Update selected - go back to parent category selection
+    if (parent) {
+      this.selectedCategoryId = parent._id || null;
+      // Emit parent as selected when going back
+      this.categorySelected.emit(parent);
+    } else {
+      this.selectedCategoryId = null;
+      // Emit null when going back to top level (all products)
+      this.categorySelected.emit(null);
+    }
+  }
+  
+  // Clear selection and go back to top level
+  clearSelection() {
+    this.selectedCategoryId = null;
+    this.parentsStack = [];
+    this.currentLevel = this.categories.filter(c => !c.parent || (c.parent && !c.parent._id));
+    this.categorySelected.emit(null);
+  }
+
+  // Check if category is selected
+  isSelected(category: Category): boolean {
+    return this.selectedCategoryId === category._id;
+  }
+
+  // Check if category has children
+  hasChildren(category: Category): boolean {
+    return !!(category.children && category.children.length > 0);
   }
 }

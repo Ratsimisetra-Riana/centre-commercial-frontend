@@ -5,7 +5,7 @@ import { environment } from '../../environments/environment';
 import { CategoryDTO } from '../dtos/category-dto';
 
 export interface FilterDef { key: string; type: 'select'|'checkbox'|'range'; options?: string[]; optionsString?: string }
-export interface Category { _id?: string; name: string; parent?: {_id: string ; name : string } | null; filters?: FilterDef[] }
+export interface Category { _id?: string; name: string; parent?: {_id: string ; name : string } | null; filters?: FilterDef[]; children?: Category[]; itemCount?: number }
 
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
@@ -15,6 +15,10 @@ export class CategoryService {
 
   list(): Observable<Category[]> {
     try { return this.http.get<Category[]>(this.api); } catch { return of(this.localList()); }
+  }
+
+  hierarchisedList(): Observable<Category[]> {
+    try { return this.http.get<Category[]>(this.api + '/hierarchy'); } catch { return of(this.localList()); }
   }
 
   get(id: string): Observable<Category | null> {

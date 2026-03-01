@@ -33,6 +33,8 @@
     <li
       *ngFor="let cat of currentLevel; let i = index"
       (click)="selectCategory(cat)"
+      [class.bg-blue-50]="isSelected(cat)"
+      [class.border-blue-200]="isSelected(cat)"
       class="cursor-pointer px-3 py-3 rounded-lg hover:bg-blue-50 transition-all duration-200 
              group border border-transparent hover:border-blue-100 flex items-center
              hover:shadow-sm active:scale-[0.99]">
@@ -51,7 +53,7 @@
         <span class="font-medium text-gray-800 group-hover:text-blue-700 transition-colors duration-200 
                      truncate block">{{ cat.name }}</span>
         <span *ngIf="cat.children?.length" class="text-xs text-gray-500 mt-0.5 block">
-          {{ cat.children.length }} {{ cat.children.length === 1 ? 'subcategory' : 'subcategories' }}
+          {{ cat.children?.length }} {{ cat.children?.length === 1 ? 'subcategory' : 'subcategories' }}
         </span>
         <span *ngIf="!cat.children?.length && cat.itemCount" 
               class="text-xs text-gray-500 mt-0.5 block">

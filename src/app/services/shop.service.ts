@@ -4,7 +4,7 @@ import { Observable, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface Contact { phone?: string; email?: string }
-export interface Shop { _id?: string; name: string; box?: {_id : string,code: string} | null; rent: number; contact?: Contact | null; images?: string[]; description?: string }
+export interface Shop { _id?: string; name: string; box?: {_id : string,code: string, floor: number , zone: string} | null; rent: number; contact?: Contact | null; images?: string[]; description?: string }
 
 @Injectable({ providedIn: 'root' })
 export class ShopService {

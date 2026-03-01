@@ -1,26 +1,54 @@
-<div class="max-w-md mx-auto bg-white p-6 rounded shadow">
-  <h2 class="text-xl mb-4">Créer un compte</h2>
-  
-  <!-- Error message -->
-  <div *ngIf="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-    {{ error }}
-  </div>
-  
-  <form (ngSubmit)="submit()">
-    <label class="block mb-2">Nom
-      <input [(ngModel)]="name" name="name" required class="w-full border px-2 py-1" />
-    </label>
-    <label class="block mb-2">Email
-      <input [(ngModel)]="email" name="email" type="email" required class="w-full border px-2 py-1" />
-    </label>
-    <label class="block mb-4">Mot de passe
-      <input type="password" [(ngModel)]="password" name="password" required minlength="6" class="w-full border px-2 py-1" />
-    </label>
-    <div class="flex gap-2">
-      <button type="submit" [disabled]="loading" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 disabled:opacity-50">
+<div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+  <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
+    
+    <div class="text-center mb-8">
+      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-900">Inscription</h2>
+      <p class="text-gray-500 text-sm">Créez votre compte gratuitement</p>
+    </div>
+    
+    <!-- Error message -->
+    <div *ngIf="error" 
+         class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6 text-sm">
+      {{ error }}
+    </div>
+    
+    <form (ngSubmit)="submit()" class="space-y-5">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+        <input [(ngModel)]="name" name="name" required 
+               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-green-500 focus:border-green-500" />
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <input [(ngModel)]="email" name="email" type="email" required 
+               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-green-500 focus:border-green-500" />
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+        <input type="password" [(ngModel)]="password" name="password" required minlength="6"
+               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-green-500 focus:border-green-500" />
+        <p class="text-xs text-gray-500 mt-1">Minimum 6 caractères</p>
+      </div>
+      
+      <button type="submit" [disabled]="loading" 
+              class="w-full bg-gradient-to-r from-green-600 to-green-700 text-white font-medium py-2.5 rounded-lg hover:from-green-700 hover:to-green-800 transition-all disabled:opacity-50">
         {{ loading ? 'Inscription...' : 'S\'inscrire' }}
       </button>
-      <a routerLink="/login" class="text-sm text-gray-600 self-center hover:text-blue-600">Déjà un compte ?</a>
-    </div>
-  </form>
+      
+      <p class="text-center text-sm text-gray-600">
+        Déjà un compte ? 
+        <a routerLink="/login" class="text-green-600 hover:text-green-800 font-medium">
+          Se connecter
+        </a>
+      </p>
+    </form>
+  </div>
 </div>

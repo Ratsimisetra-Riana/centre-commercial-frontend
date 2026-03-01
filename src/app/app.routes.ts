@@ -8,7 +8,8 @@ import { RegisterComponent } from './components/auth/register.component';
 import { CartComponent } from './components/cart/cart.component';
 import { CheckoutComponent } from './components/checkout/checkout.component';
 import { PurchaseHistoryComponent } from './components/history/purchase-history.component';
-import { ShopListComponent } from './components/shops/shop-list.component';
+import { ShopListClientComponent } from './components/shops/shop-list-client.component';
+import { ShopDetailClientComponent } from './components/shops/shop-detail-client.component';
 import { ShopProductsComponent } from './components/shops/shop-products.component';
 import { ShopAdminLoginComponent } from './components/shop-admin/login.component';
 import { ShopDashboardComponent } from './components/shop-admin/dashboard.component';
@@ -46,7 +47,8 @@ export const routes: Routes = [
         { path: 'cart', component: CartComponent },
         { path: 'checkout', component: CheckoutComponent },
         { path: 'history', component: PurchaseHistoryComponent },
-        { path: 'shops', component: ShopListComponent },
+        { path: 'shops', component: ShopListClientComponent },
+        { path: 'shops/:id', component: ShopDetailClientComponent },
         { path: 'shops/:id/products', component: ShopProductsComponent }
       ]
     }

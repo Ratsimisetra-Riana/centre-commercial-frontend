@@ -1,9 +1,121 @@
-<div class="max-w-4xl mx-auto bg-white p-6 rounded shadow">
-  <h2 class="text-xl mb-4">Produits de la boutique {{ shopId }}</h2>
+<!-- shop-products.component.html -->
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    
+    <!-- Header with shop info -->
+    <div class="mb-8">
+      <a [routerLink]="['/shops', shopId]" 
+         class="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 mb-4 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        Retour à la boutique
+      </a>
+      
+      <!-- Loading shop name -->
+      <div *ngIf="loading.shop" class="h-8 w-48 bg-gray-200 animate-pulse rounded"></div>
+      
+      <!-- Shop info -->
+      <div *ngIf="!loading.shop && shop" class="flex items-center gap-4">
+        <h1 class="text-3xl font-bold text-gray-900">{{ shop.name }}</h1>
+        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+          {{ totalItems }} produit{{ totalItems !== 1 ? 's' : '' }}
+        </span>
+      </div>
+    </div>
 
-  <div *ngIf="products.length === 0" class="text-gray-600">Aucun produit trouvé pour cette boutique.</div>
+    <!-- Loading State -->
+    <div *ngIf="loading.products" class="text-center py-16">
+      <div class="inline-block w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+      <p class="text-gray-500">Chargement des produits...</p>
+    </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <app-product-card *ngFor="let p of products" [product]="p"></app-product-card>
+    <!-- Content -->
+    <div *ngIf="!loading.products">
+      
+     
+
+      <!-- Products Grid -->
+      <div *ngIf="filteredProducts.length > 0" 
+           class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+        
+        <a *ngFor="let product of getPaginatedProducts()" 
+           [routerLink]="['/products', product._id]"
+           class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1 group">
+          
+          <!-- Product Image -->
+          <div class="aspect-square bg-gray-100 relative overflow-hidden">
+            <img [src]="getProductImage(product)" 
+                 [alt]="product.name"
+                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+            
+           
+          </div>
+
+          <!-- Product Info -->
+          <div class="p-4">
+            <h3 class="font-medium text-gray-800 mb-2 line-clamp-2">{{ product.name }}</h3>
+            
+            <!-- Category Tag -->
+            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full inline-block mb-2">
+              {{ product.categoryId.name }}
+            </span>
+            
+            <!-- Price -->
+            <div class="flex items-center justify-between">
+              <span class="text-xl font-bold text-gray-900">
+                {{ getFirstAvailablePrice(product) | currency }}
+              </span>
+              <span class="text-blue-600 group-hover:translate-x-1 transition-transform">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </span>
+            </div>
+
+            <!-- Variants count -->
+            <div *ngIf="product.variants?.length > 1" class="mt-2 text-xs text-gray-500">
+              {{ product.variants.length }} variantes disponibles
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="getPageCount() > 1" class="mt-10 flex justify-center">
+        <div class="flex gap-2">
+          <button *ngFor="let page of [].constructor(getPageCount()); let i = index" 
+                  (click)="changePage(i + 1)"
+                  [class]="currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                  class="w-10 h-10 rounded-lg transition-colors font-medium">
+            {{ i + 1 }}
+          </button>
+        </div>
+      </div>
+
+      <!-- No Products State -->
+      <div *ngIf="filteredProducts.length === 0" class="text-center py-16">
+        <div class="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+          <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">Aucun produit trouvé</h3>
+        <p class="text-gray-500 mb-6">
+          {{ selectedCategory ? 'Aucun produit dans cette catégorie' : 'Cette boutique n\'a pas encore de produits' }}
+        </p>
+        <button *ngIf="selectedCategory" 
+                (click)="filterByCategory(null)"
+                class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors">
+          Voir tous les produits
+        </button>
+        <a *ngIf="!selectedCategory" 
+           [routerLink]="['/shops', shopId]"
+           class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors">
+          Retour à la boutique
+        </a>
+      </div>
+    </div>
   </div>
 </div>

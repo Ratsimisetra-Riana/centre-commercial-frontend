@@ -80,8 +80,8 @@ export class ProductService {
   getProductsByShop(shopId: string): Observable<any> {
     // prefer backend if available
     try {
-      console.log(this.apiUrl + '?shopId=' + '6988b5808102b21db9b20666');
-      return this.http.get(this.apiUrl + '?shopId=' + '6988b5808102b21db9b20666').pipe(
+      console.log(this.apiUrl + '?shopId=' + shopId);
+      return this.http.get(this.apiUrl + '?shopId=' + shopId).pipe(
         map((res: any) => res)
       );
     } catch {
@@ -129,6 +129,54 @@ export class ProductService {
       // fallback: remove from local mock list
       this.products = this.products.filter(p => p._id !== id);
       return of({ success: true });
+    }
+  }
+
+  // Filter products by category and variant attributes
+  filterProducts(filters: { categoryId?: string; shopId?: string; [key: string]: any }): Observable<any> {
+    // Build query string from filters
+    const params = new URLSearchParams();
+    if (filters.categoryId) {
+      params.set('categoryId', filters.categoryId);
+    }
+    if (filters.shopId) {
+      params.set('shopId', filters.shopId);
+    }
+    // Add variant attribute filters
+    Object.entries(filters).forEach(([key, value]) => {
+      if (key !== 'categoryId' && key !== 'shopId' && value !== undefined && value !== null && value !== '') {
+        if (Array.isArray(value)) {
+          // For array values, add each option as a separate param
+          value.forEach(v => params.set(key, v));
+        } else {
+          params.set(key, value);
+        }
+      }
+    });
+
+    const queryString = params.toString();
+    const url = queryString ? `${this.apiUrl}/filter?${queryString}` : `${this.apiUrl}/filter`;
+    
+    try {
+      console.log('Filtering products with URL:', url);
+      return this.http.get(url);
+    } catch {
+      // Fallback to local filtering
+      return of(this.products.filter(p => {
+        if (filters.categoryId && p.categoryId !== filters.categoryId) return false;
+        if (filters.shopId && p.shopId !== filters.shopId) return false;
+        
+        // Check variant attributes
+        const variantAttrs = p.variants?.map((v: any) => v.attributes ? Object.fromEntries(v.attributes) : {});
+        if (!variantAttrs) return true;
+        
+        return variantAttrs.some((attrs: any) => {
+          return Object.entries(filters).every(([key, value]) => {
+            if (key === 'categoryId' || key === 'shopId' || !value) return true;
+            return attrs[key] === value;
+          });
+        });
+      }));
     }
   }
 
